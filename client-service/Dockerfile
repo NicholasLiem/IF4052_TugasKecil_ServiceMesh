@@ -5,6 +5,6 @@ COPY . .
 RUN go build -o main .
 
 FROM alpine:latest
-RUN apk --no-cache add curl
+RUN apk add --no-cache curl bash
 COPY --from=builder /app/main /main
 CMD ["/main"]

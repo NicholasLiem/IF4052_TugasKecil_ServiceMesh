@@ -17,5 +17,5 @@ func main() {
     route.GET("/records/:patient_id", GetPatientRecords)
     route.POST("/records/:patient_id", UpdatePatientRecord)
     
-    app.Run(":1233")
+    app.Run(":8080")
 }

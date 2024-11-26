@@ -17,7 +17,7 @@ func getMockDoctors() []Doctor {
 }
 
 func getMockCategories() []string {
-	return []string{"General", "Surgery", "Pediatrics", "Orthopedics", "Dermatology", "Neurology"}
+	return []string{"General", "Pediatrics", "Orthopedics", "Dermatology", "Neurology"}
 }
 
 func getMockPatients() []Patient {

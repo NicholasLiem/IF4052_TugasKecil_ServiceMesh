@@ -93,3 +93,7 @@ func UpdatePatientRecord(ctx *gin.Context){
 	// Ini hit ke pine valley sama ke grand oak
 	fmt.Println("INI RECORD REQUEST", recordRequest)
 }
+
+func HealthCheck(ctx *gin.Context){
+	ctx.JSON(200, gin.H{"Status": "OK"})
+}

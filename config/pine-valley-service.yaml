@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: pine-valley-service
-        image: <your-registry>/pine-valley-service:latest
+        image: nicholasliem/pine-valley-service:latest
         ports:
         - containerPort: 8080
         resources:

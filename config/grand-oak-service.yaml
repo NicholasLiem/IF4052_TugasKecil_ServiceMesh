@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: grand-oak-service
-        image: <your-registry>/grand-oak-service:latest #ini build and push to docker repo
+        image: nicholasliem/grand-oak-service:latest
         ports:
         - containerPort: 8080
         resources:

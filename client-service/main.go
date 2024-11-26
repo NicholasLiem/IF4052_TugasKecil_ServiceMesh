@@ -10,6 +10,8 @@ func main() {
     app := gin.Default()
     route := app.Group("/client-service")
 
+    route.GET("/health", HealthCheck)
+
     route.POST("/appointments/:category", ReserveAppointment)
     route.GET("/appointments/:patient_id", GetPatientAppointment)
     route.GET("/records/:patient_id", GetPatientRecords)

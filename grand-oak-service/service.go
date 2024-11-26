@@ -122,3 +122,7 @@ func UpdatePatientRecord(c *gin.Context) {
 
 	c.JSON(200, record)
 }
+
+func HealthCheck(c *gin.Context) {
+	c.JSON(200, gin.H{"status": "ok"})
+}

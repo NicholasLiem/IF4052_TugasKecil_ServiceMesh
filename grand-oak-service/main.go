@@ -7,6 +7,8 @@ func main() {
 
 	route := app.Group("/grand-oak")
 
+	route.GET("/health", HealthCheck)
+
 	route.POST("/appointments/:category", ReserveAppointment)
 	route.GET("/appointments/:patient_id", GetAppointments)
 

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: client-service
-        image: <your-registry>/client-service:latest #ini build and push to docker repo
+        image: nicholasliem/client-service:latest
         ports:
         - containerPort: 8080
         resources:

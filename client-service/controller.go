@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +22,10 @@ type RecordRequest struct {
 }
 
 func ReserveAppointment(ctx *gin.Context){
+	var (
+		resp *http.Response
+	)
+
 	category := ctx.Param("category")
 
 	if category == ""{
@@ -32,8 +40,39 @@ func ReserveAppointment(ctx *gin.Context){
 		return
 	}
 
-	// Hit ke pine valley sama grand oak
+	client := CreateHTTPClient()
+	// http://grand-oak-service pas deploy ini buat local aja
+	// http://pine-valley-service
+	grandOakURL := "http://localhost:8080/grand-oak/appointments/" + category
+	pineValleyURL := "http://localhost:8080/pine-valley/appointments/" + category
 
+	requestBody, err := json.Marshal(appointmentRequest)
+	if err != nil {
+		ctx.JSON(500, gin.H{"Error": "Failed to encode request"})
+		return
+	}
+
+
+	resp, err = client.Post(pineValleyURL, "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		ctx.JSON(500, gin.H{"Error": "Failed to communicate with Pine Valley"})
+		return
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Printf("Response from Pine Valley: %s\n", body)
+
+	// Hit Grand Oak
+	resp, err = client.Post(grandOakURL, "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		ctx.JSON(500, gin.H{"Error": "Failed to communicate with Grand Oak"})
+		return
+	}
+	defer resp.Body.Close()
+	body, _ = ioutil.ReadAll(resp.Body)
+	fmt.Printf("Response from Grand Oak: %s\n", body)
+
+	ctx.JSON(200, gin.H{"message": "Appointment reserved in both services", "body": string(body)})
 }
 
 func GetPatientAppointment(ctx *gin.Context){

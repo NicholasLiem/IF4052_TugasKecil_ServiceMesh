@@ -39,7 +39,7 @@ func ReserveAppointment(c *gin.Context) {
 		Hospital, category)
 
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -42,8 +42,8 @@ func ReserveAppointment(ctx *gin.Context){
 	client := CreateHTTPClient()
 	// http://grand-oak-service pas deploy ini buat local aja
 	// http://pine-valley-service
-	grandOakURL := "http://localhost:8080/grand-oak/appointments/" + category
-	pineValleyURL := "http://localhost:8083/pine-valley/appointments/" + category
+	grandOakURL := "http://grand-oak-service/grand-oak/appointments/" + category
+	pineValleyURL := "http://pine-valley-service/pine-valley/appointments/" + category
 
 	requestBody, err := json.Marshal(appointmentRequest)
 	if err != nil {

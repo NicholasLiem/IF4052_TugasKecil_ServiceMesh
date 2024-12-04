@@ -253,8 +253,72 @@ func UpdatePatientRecord(ctx *gin.Context){
 		return
 	}
 
+	client := CreateHTTPClient()
+
+	grandOakURL := "http://localhost:8082/grand-oak/records/" + patientId
+	pineValleyURL := "http://localhost:8083/pine-valley/records/" + patientId
+
+	var (
+		message string
+		pineValleyResponse *PatientRecord
+		grandOakResponse *PatientRecord
+	)
+	
+	requestBody, err := json.Marshal(recordRequest)
+	
+	if err != nil{
+		ctx.JSON(500, gin.H{"Error": "Failed to encode request"})
+		return
+	}
+
+	successfulServices := 0
+	resp, err := client.Post(pineValleyURL, "application/json", bytes.NewBuffer(requestBody))
+
+	if err != nil || resp.StatusCode == 400{
+		fmt.Println("Error communicating with Pine Valley or received 500")
+		pineValleyResponse = nil
+	}else{
+		defer resp.Body.Close()
+		if err := json.NewDecoder(resp.Body).Decode(&pineValleyResponse); err != nil {
+			pineValleyResponse = nil
+		} else {
+			successfulServices++
+		}
+	}
+
+	fmt.Printf("Response from Pine Valley: %+v\n", pineValleyResponse)
+
+
+	resp, err = client.Post(grandOakURL, "application/json", bytes.NewBuffer(requestBody))
+	if err != nil || resp.StatusCode == 400{
+		fmt.Println("Error communicating with Grand Oak or received 400")
+		grandOakResponse = nil
+	}else{
+		defer resp.Body.Close()
+		if err := json.NewDecoder(resp.Body).Decode(&grandOakResponse); err != nil {
+			grandOakResponse = nil
+		} else {
+			successfulServices++
+		}
+	}
+	
+
+	fmt.Printf("Response from Grand Oak: %+v\n", grandOakResponse)
+
 	// Ini hit ke pine valley sama ke grand oak
-	fmt.Println("INI RECORD REQUEST", recordRequest)
+	if successfulServices == 2 {
+		message = "Appointment reserved successfully in both services."
+	} else if successfulServices == 1 {
+		message = "Appointment reserved successfully in one service."
+	} else {
+		message = "Failed to reserve appointments in both services."
+	}
+
+	ctx.JSON(200, gin.H{
+		"message":              message,
+		"pine_valley_response": pineValleyResponse,
+		"grand_oak_response":   grandOakResponse,
+	})
 }
 
 func HealthCheck(ctx *gin.Context){

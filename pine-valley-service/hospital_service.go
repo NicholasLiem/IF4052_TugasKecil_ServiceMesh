@@ -59,9 +59,7 @@ func GetAppointments(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid patient ID"})
 		return
 	}
-
 	appointments := getAppointmentsByPatientID(patientID)
-
 	if len(appointments) == 0 {
 		c.JSON(404, gin.H{"error": "No appointments found"})
 		return

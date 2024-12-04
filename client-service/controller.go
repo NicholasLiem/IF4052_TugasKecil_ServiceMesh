@@ -99,7 +99,6 @@ func ReserveAppointment(ctx *gin.Context){
 }
 
 func GetPatientAppointment(ctx *gin.Context){
-	fmt.Println("MASUK KE SINI")
 	patientId := ctx.Param("patient_id")
 
 	if patientId == ""{
@@ -107,16 +106,67 @@ func GetPatientAppointment(ctx *gin.Context){
 		return
 	}
 
-	id, err := strconv.Atoi(patientId)
+	client := CreateHTTPClient()
 	
-	if err != nil{
-		ctx.JSON(400, gin.H{"Error": "Invalid Patient ID"})
-		return
+	grandOakURL := "http://localhost:8082/grand-oak/appointments/" + patientId
+	pineValleyURL := "http://localhost:8083/pine-valley/appointments/" + patientId
+
+	var (
+		message string
+		pineValleyResponse, grandOakResponse *[]AppointmentResponse
+	)
+
+	successfulServices := 0
+
+	resp, err := client.Get(pineValleyURL)
+
+	if err != nil || resp.StatusCode == 500 {
+		fmt.Println("Error communicating with Pine Valley or received 500")
+		pineValleyResponse = nil
+	} else if resp.StatusCode == 404{
+		fmt.Println("Patient's appointment not found")
+		pineValleyResponse = nil
+	} else {
+		defer resp.Body.Close()
+		if err := json.NewDecoder(resp.Body).Decode(&pineValleyResponse); err != nil {
+			pineValleyResponse = nil
+		} else {
+			successfulServices++
+		}
+	}
+	fmt.Printf("Response from Pine Valley: %+v\n", pineValleyResponse)
+
+
+	resp, err = client.Get(grandOakURL)
+	if err != nil || resp.StatusCode == 500 {
+		fmt.Println("Error communicating with Grand Oak or received 500")
+		grandOakResponse = nil
+	} else if resp.StatusCode == 404{
+		fmt.Println("Patient's Appointment not found")
+		grandOakResponse = nil
+	} else {
+		defer resp.Body.Close()
+		if err := json.NewDecoder(resp.Body).Decode(&grandOakResponse); err != nil {
+			grandOakResponse = nil
+		} else {
+			successfulServices++
+		}
+	}
+	fmt.Printf("Response from Grand Oak: %+v\n", pineValleyResponse)
+
+	if successfulServices == 2{
+		message = "Success getting patient's appointment data from both services"
+	}else if successfulServices == 1{
+		message = "Patient's appointment succesfully pulled from 1 service only"
+	}else{
+		message = "Failed to get patient's appointment data from both services"
 	}
 
-	fmt.Println("INI ID", id)
-
-	// Ini hit ke pine valley sama ke grand oak
+	ctx.JSON(200, gin.H{
+		"message":              message,
+		"pine_valley_response": pineValleyResponse,
+		"grand_oak_response":   grandOakResponse,
+	})
 }
  
 func GetPatientRecords(ctx *gin.Context){

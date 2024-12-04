@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -177,16 +176,68 @@ func GetPatientRecords(ctx *gin.Context){
 		return
 	}
 
-	id, err := strconv.Atoi(patientId)
+	client := CreateHTTPClient()
+	
+	grandOakURL := "http://localhost:8082/grand-oak/records/" + patientId
+	pineValleyURL := "http://localhost:8083/pine-valley/records/" + patientId
 
-	if err != nil{
-		ctx.JSON(400, gin.H{"Error": "Invalid Patient ID"})
-		return
+	var (
+		message string
+		pineValleyResponse, grandOakResponse *PatientRecord
+	)
+	successfulServices := 0
+
+	resp, err := client.Get(pineValleyURL)
+
+	if err != nil || resp.StatusCode == 500 {
+		fmt.Println("Error communicating with Pine Valley or received 500")
+		pineValleyResponse = nil
+	} else if resp.StatusCode == 404{
+		fmt.Println("Patient's record not found")
+		pineValleyResponse = nil
+	} else {
+		defer resp.Body.Close()
+		if err := json.NewDecoder(resp.Body).Decode(&pineValleyResponse); err != nil {
+			pineValleyResponse = nil
+		} else {
+			successfulServices++
+		}
 	}
 
-	fmt.Println("INI id", id)
+	fmt.Printf("Response from Pine Valley: %+v\n", pineValleyResponse)
 
-	// Ini hit ke pine valley sama ke grand oak
+
+	resp, err = client.Get(grandOakURL)
+	if err != nil || resp.StatusCode == 500 {
+		fmt.Println("Error communicating with Grand Oak or received 500")
+		grandOakResponse = nil
+	} else if resp.StatusCode == 404{
+		fmt.Println("Patient's record not found")
+		grandOakResponse = nil
+	} else {
+		defer resp.Body.Close()
+		if err := json.NewDecoder(resp.Body).Decode(&grandOakResponse); err != nil {
+			fmt.Println("INI ERR", err)
+			grandOakResponse = nil
+		} else {
+			successfulServices++
+		}
+	}
+	fmt.Printf("Response from Grand Oak: %+v\n", pineValleyResponse)
+
+	if successfulServices == 2{
+		message = "Success getting patient's appointment data from both services"
+	}else if successfulServices == 1{
+		message = "Patient's appointment succesfully pulled from 1 service only"
+	}else{
+		message = "Failed to get patient's appointment data from both services"
+	}
+
+	ctx.JSON(200, gin.H{
+		"message":              message,
+		"pine_valley_response": pineValleyResponse,
+		"grand_oak_response":   grandOakResponse,
+	})
 }
 
 func UpdatePatientRecord(ctx *gin.Context){

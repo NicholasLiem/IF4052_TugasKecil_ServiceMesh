@@ -9,3 +9,10 @@ type AppointmentResponse struct {
 	Room      string `json:"room"`
 	Confirmed bool   `json:"confirmed"`
 }
+
+type PatientRecord struct {
+	PatientID  int                 `json:"patient_id"`
+	DoctorID   int                 `json:"doctor_id"`
+	Symptoms   map[string][]string `json:"symptoms"`
+	Treatments map[string][]string `json:"treatments"`
+}

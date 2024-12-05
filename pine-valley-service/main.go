@@ -17,5 +17,5 @@ func main() {
 
 	route.POST("/records/:patient_id", UpdatePatientRecord)
 
-	app.Run(":8083")
+	app.Run(":8080")
 }

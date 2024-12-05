@@ -107,8 +107,8 @@ func GetPatientAppointment(ctx *gin.Context){
 
 	client := CreateHTTPClient()
 	
-	grandOakURL := "http://localhost:8082/grand-oak/appointments/" + patientId
-	pineValleyURL := "http://localhost:8083/pine-valley/appointments/" + patientId
+	grandOakURL := "http://grand-oak-service/grand-oak/appointments/" + patientId
+	pineValleyURL := "http://pine-valley-service/pine-valley/appointments/" + patientId
 
 	var (
 		message string
@@ -178,8 +178,8 @@ func GetPatientRecords(ctx *gin.Context){
 
 	client := CreateHTTPClient()
 	
-	grandOakURL := "http://localhost:8082/grand-oak/records/" + patientId
-	pineValleyURL := "http://localhost:8083/pine-valley/records/" + patientId
+	grandOakURL := "http://grand-oak-service/grand-oak/records/" + patientId
+	pineValleyURL := "http://pine-valley-service/pine-valley/records/" + patientId
 
 	var (
 		message string
@@ -255,8 +255,8 @@ func UpdatePatientRecord(ctx *gin.Context){
 
 	client := CreateHTTPClient()
 
-	grandOakURL := "http://localhost:8082/grand-oak/records/" + patientId
-	pineValleyURL := "http://localhost:8083/pine-valley/records/" + patientId
+	grandOakURL := "http://grand-oak-service/grand-oak/records/" + patientId
+	pineValleyURL := "http://pine-valley-service/pine-valley/records/" + patientId
 
 	var (
 		message string
